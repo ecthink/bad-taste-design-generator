@@ -1,45 +1,28 @@
-# DOM injection regression tests
+# Verification
 
-## DOM/parser suite
+The runtime app has no dependencies. Tests require Node 24.15+ and the pinned development dependencies in package.json.
 
-This suite executes the app in jsdom, parses its generated HTML, and dispatches
-load/error events on any injected handlers. Resource fetching is disabled.
-It verifies the security boundary and share/control logic, not browser layout.
-It was verified with Node.js 24.22.1 and jsdom 31.0.0. Use Node.js 24.15 or
-newer on the 24.x release line:
-
-```sh
-npm install --no-save --package-lock=false jsdom@31.0.0
-node --test tests/dom-security.test.cjs
 ```
-
-## Browser suite
-
-These tests run the actual single-page app in headless Chromium using Playwright.
-All app responses come from memory and other browser requests are blocked.
-
-Prerequisites: Node.js 20 or newer, Playwright, and Chromium.
-
-From the repository root, if Playwright is not already installed:
-
-```sh
-npm install --no-save --package-lock=false playwright
+npm install
+npm run check
+npm test
+npm run build
 npx playwright install chromium
+npm run test:browser
 ```
 
-Run the suite:
+To use an existing Chromium: `CHROMIUM_PATH=/usr/bin/chromium npm run test:browser`.
 
-```sh
-node --test tests/dom-injection.test.cjs
-```
+## Executed during implementation
 
-To use an existing Chromium executable instead of Playwright's bundled browser:
+- Syntax checks and static build passed.
+- 29 model/jsdom tests passed. `NODE_PATH=/tmp/bad-taste-test-deps/node_modules npm test` used the existing jsdom 31.0.0 installation.
+- Interactive Chromium QA: desktop and 390px-wide responsive iframe; actual local PNG photo import, sepia filter, SVG-to-PNG rendering, 1800×1360 PNG byte/dimension checks, saved image visual review, numeric sticker movement/scale, keyboard movement, incremental feedback and undo, photo-sharing warning, no horizontal overflow.
+- The standalone Playwright suite is provided for CI/reviewer use; it was not run in this execution environment. Browser testing here used the supported interactive browser surface. Do not confuse jsdom/canvas stubs with real raster verification.
+- Native Safari/iOS/Android testing remains for user acceptance. Mobile layout QA is at 390 CSS pixels in desktop Chromium, not a real phone.
 
-```sh
-CHROMIUM_PATH=/usr/bin/chromium node --test tests/dom-injection.test.cjs
-```
+## Regression coverage
 
-Coverage includes URL-fragment auto-load/reload, manual generation, all four
-text-rendering helpers, HTML/SVG/event-handler payloads, entity and URL-encoded
-text, Unicode, sharing, regeneration, Ctrl+Enter, save guidance, empty input,
-trimming, and malformed fragments. No runtime dependency is added to the app.
+The model/DOM suites cover the original eight injection payload families through legacy hash, v2 links, manual input, and exported SVG serialization. They also cover strict schema limits, tampered state, full-state URL round trips, feedback isolation/saturation, exact undo, reports, transforms, internal navigation without destructive hash changes, keyboard/focus, generation skipping/Escape, clipboard fallback, photo normalization and privacy, invalid/corrupt/oversized files, asynchronous photo races, same-file reselection, stale decodes, export single-flight, and export/edit races.
+
+The browser suite serves only local source assets from memory and blocks other requests. It adds real Chromium execution, PNG headers/dimensions and narrow viewport assertions.
