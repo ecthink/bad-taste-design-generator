@@ -229,6 +229,11 @@
   const EXCL = () => '!!!'.repeat(ri(2, 5));
   const excl = (t) => t + EXCL();
 
+  // Escape user text only when inserting it into HTML, after text transforms.
+  const escapeHTML = (text) => text.replace(/[&<>"']/g, char => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+  }[char]));
+
   const BORDER_STYLES = ['solid','dashed','dotted','double','groove','ridge','outset'];
   const ANIM_CLASSES  = ['gen-blink','gen-rainbow','gen-glow','gen-float',''];
 
@@ -277,7 +282,7 @@
           overflow-wrap:break-word;
           white-space:normal;
           max-width:90%;">
-          ${excl(text)}
+          ${escapeHTML(excl(text))}
         </span>
       </div>`;
   }
@@ -292,7 +297,7 @@
           font-family:'Comic Sans MS','Comic Sans',cursive;
           color:${c};text-shadow:3px 3px 0 ${rc()},6px 6px 0 ${rc()};
           margin:12px 0;display:block;">
-        ${excl(text)} &nbsp;⭐&nbsp; ${excl(text.toUpperCase())} &nbsp;⭐&nbsp; ${excl(text)}
+        ${escapeHTML(excl(text))} &nbsp;⭐&nbsp; ${escapeHTML(excl(text.toUpperCase()))} &nbsp;⭐&nbsp; ${escapeHTML(excl(text))}
       </marquee>`;
   }
 
@@ -307,7 +312,7 @@
         color:${c};text-shadow:2px 2px 0 ${rc()};
         transform:rotate(${rot}deg);
         animation:blink ${ri(3,9)/10}s infinite;">
-        ★ ${text.toUpperCase()} ★
+        ★ ${escapeHTML(text.toUpperCase())} ★
       </div>`;
   }
 
@@ -330,7 +335,7 @@
           transform:rotate(${rot}deg);
           animation:${anim} ${ri(4,12)/10}s infinite;
           padding:6px 4px;margin:4px;">
-          ${word}${ri(0,1) ? '!!!' : ''}
+          ${escapeHTML(word)}${ri(0,1) ? '!!!' : ''}
         </span>`);
     });
     return `<div style="display:flex;flex-wrap:wrap;justify-content:center;
