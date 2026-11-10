@@ -1,0 +1,14 @@
+{
+  "name": "bad-taste-design-generator",
+  "version": "2.0.0",
+  "private": true,
+  "description": "Local-only retro design editor, with SVG preview and PNG downloads",
+  "scripts": {
+    "build": "node scripts/build.cjs",
+    "check": "node --check app.js && node --check engine.js && node --check scripts/build.cjs",
+    "test": "node --test tests/engine.test.cjs tests/dom-security.test.cjs",
+    "test:browser": "node --test tests/dom-injection.test.cjs"
+  },
+  "devDependencies": { "jsdom": "31.0.0", "playwright": "1.58.2" },
+  "engines": { "node": ">=24.15.0" }
+}
